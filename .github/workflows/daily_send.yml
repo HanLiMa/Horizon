@@ -26,4 +26,4 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASSWORD }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
-        run: python my_rot/main.py  # <--- 只有这里加了文件夹路径
+        run: python my_bot/main.py  # <--- 只有这里加了文件夹路径
