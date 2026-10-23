@@ -1,72 +1,56 @@
-name: Daily Email Sender
+name: My Daily AI Digest
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 23 * * *' # 每天北京时间早上 7 点运行
+  workflow_dispatch: # 允许手动测试
 
 jobs:
-  send_email:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # 1. 先运行一遍原项目的抓取
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Install dependencies
-        run: uv sync
-
-      - name: Run Horizon
+      - name: Send Email directly
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          HORIZON_WEBHOOK_URL: "https://example.com"
-        run: uv run horizon --hours 24
-
-      # 2. 发送邮件
-      - name: Send Email with Python
-        env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASSWORD }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
         run: |
+          pip install requests
           python -c "
-          import smtplib, os, glob
+          import os, requests, smtplib
           from email.mime.text import MIMEText
           from email.header import Header
 
-          files = glob.glob('data/summaries/*-zh.md')
-          if not files:
-              print('没有找到日报文件！')
-              exit(1)
+          # 1. 用 DeepSeek 总结你的两个主题
+          headers = {'Authorization': f'Bearer {os.environ[\"DEEPSEEK_API_KEY\"]}'}
+          prompt = '''你是一名学术研究助理和计算机网络原理教师。请分别输出以下两个任务：
+          任务一：用简短的要点，总结最近关于 First Order Motion Model (FOMM) 或 姿态迁移(Pose Transfer)、动画生成的最新研究趋势（列出2-3个具体方向）。
+          任务二：给出一个计算机网络领域的近期前沿热点案例，说明它对应课本章节里的哪个知识点，并给出1个用于课堂讨论的问题。'''
+          data = {'model': 'deepseek-chat', 'messages': [{'role': 'user', 'content': prompt}]}
           
-          latest_file = sorted(files)[-1]
-          with open(latest_file, 'r', encoding='utf-8') as f:
-              content = f.read()
+          res = requests.post('https://api.deepseek.com/v1/chat/completions', headers=headers, json=data)
+          result = res.json()
+          
+          if 'choices' not in result:
+              print('AI 报错:', result)
+              exit(1)
+              
+          content = result['choices'][0]['message']['content']
 
+          # 2. 发邮件
           sender = os.environ['EMAIL_USER']
           password = os.environ['EMAIL_PASS']
           receiver = os.environ['TO_EMAIL']
 
           msg = MIMEText(content, 'plain', 'utf-8')
-          msg['Subject'] = Header(f'你的专属AI日报 ({latest_file.split(\"/\")[-1]})', 'utf-8')
+          msg['Subject'] = Header('你的专属 FOMM 与网络教学简报', 'utf-8')
           msg['From'] = sender
           msg['To'] = receiver
 
-          try:
-              smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
-              smtp.login(sender, password)
-              smtp.sendmail(sender, [receiver], msg.as_string())
-              smtp.quit()
-              print('邮件发送成功！')
-          except Exception as e:
-              print(f'发送失败: {e}')
-              exit(1)
+          smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
+          smtp.login(sender, password)
+          smtp.sendmail(sender, [receiver], msg.as_string())
+          smtp.quit()
+          print('邮件发送成功！')
           "
