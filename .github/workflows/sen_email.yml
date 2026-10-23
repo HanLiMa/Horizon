@@ -2,9 +2,8 @@ name: Daily Email Sender
 
 on:
   schedule:
-    # 每天北京时间早上 8 点运行（UTC 时间 0 点）
     - cron: '0 0 * * *'
-  workflow_dispatch: # 允许你手动点击测试
+  workflow_dispatch:
 
 jobs:
   send_email:
@@ -18,7 +17,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 我们的核心逻辑：直接读取刚才生成的 Markdown 文件，发给你的邮箱
+      # 1. 先运行一遍原项目的抓取
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Horizon
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          HORIZON_WEBHOOK_URL: "https://example.com"
+        run: uv run horizon --hours 24
+
+      # 2. 发送邮件
       - name: Send Email with Python
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
@@ -30,7 +42,6 @@ jobs:
           from email.mime.text import MIMEText
           from email.header import Header
 
-          # 找到今天生成的最新日报（去 data/summaries 找中文的 md 文件）
           files = glob.glob('data/summaries/*-zh.md')
           if not files:
               print('没有找到日报文件！')
@@ -40,7 +51,6 @@ jobs:
           with open(latest_file, 'r', encoding='utf-8') as f:
               content = f.read()
 
-          # 邮件配置
           sender = os.environ['EMAIL_USER']
           password = os.environ['EMAIL_PASS']
           receiver = os.environ['TO_EMAIL']
@@ -50,7 +60,6 @@ jobs:
           msg['From'] = sender
           msg['To'] = receiver
 
-          # 发送邮件 (QQ邮箱)
           try:
               smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
               smtp.login(sender, password)
