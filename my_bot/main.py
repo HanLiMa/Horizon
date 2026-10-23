@@ -25,7 +25,7 @@ def main():
     
     print("开始抓取最新数据...")
     
-        for name, url in urls.items():
+    for name, url in urls.items():
         print(f"正在读取: {name}")
         try:
             feed = feedparser.parse(url)
