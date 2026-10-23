@@ -67,51 +67,33 @@
     },
     "rss": [
       {
-        "name": "Simon Willison",
-        "url": "https://simonwillison.net/atom/everything/",
+        "name": "arXiv Computer Vision (FOMM/姿态迁移)",
+        "url": "https://rss.arxiv.org/rss/cs.CV",
         "enabled": true,
-        "category": "ai-tools",
-        "profile": "tech-news"
+        "category": "fomm-research",
+        "profile": "fomm-tracker"
       },
       {
-        "name": "vLLM Blog",
-        "url": "https://vllm.ai/blog/rss.xml",
+        "name": "arXiv Graphics (动画生成)",
+        "url": "https://rss.arxiv.org/rss/cs.GR",
         "enabled": true,
-        "category": "llm-inference",
-        "profile": "tech-blog",
-        "content_extractor": "trafilatura"
+        "category": "animation-gen",
+        "profile": "fomm-tracker"
       },
       {
-        "name": "Sean Goedecke",
-        "url": "https://www.seangoedecke.com/rss.xml",
+        "name": "APNIC Blog (网络架构与前沿)",
+        "url": "https://blog.apnic.net/feed/",
         "enabled": true,
-        "category": "software-engineering",
-        "profile": "tech-blog",
-        "content_extractor": "trafilatura"
+        "category": "network-teaching",
+        "profile": "network-teaching"
       },
       {
-        "name": "CNBC Finance",
-        "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000664",
+        "name": "Cisco Blogs - Networking",
+        "url": "https://blogs.cisco.com/networking/feed",
         "enabled": true,
-        "category": "finance",
-        "profile": "finance-news",
-        "content_extractor": "trafilatura"
-      },
-      {
-        "name": "NVIDIA CUDA Technical Blog",
-        "url": "https://developer.nvidia.com/blog/tag/cuda/feed/",
-        "enabled": true,
-        "category": "cuda",
-        "profile": "tech-blog",
-        "content_extractor": "trafilatura"
-      },
-      {
-        "name": "LWN.net (subscriber full-text)",
-        "url": "https://lwn.net/headlines/full_text?key=${LWN_KEY}",
-        "enabled": false,
-        "category": "linux",
-        "profile": "tech-news"
-      }
+        "category": "network-teaching",
+        "profile": "network-teaching"
+      }    
     ],
     "reddit": {
       "enabled": true,
