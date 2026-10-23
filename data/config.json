@@ -25,7 +25,7 @@
       "finance-news": {
         "threshold": 7.0,
         "topic_dedup": true
-      }，
+      },
       "fomm-tracker": {
         "threshold": 6.5,
         "topic_dedup": true
