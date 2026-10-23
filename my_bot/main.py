@@ -25,10 +25,11 @@ def main():
     
     print("开始抓取最新数据...")
     
-    for name, url in urls.items():
+        for name, url in urls.items():
         print(f"正在读取: {name}")
         try:
             feed = feedparser.parse(url)
+            print(f"--> 从 {name} 成功解析到 {len(feed.entries)} 条原始数据。") # <--- 加上这一行
         except Exception as e:
             print(f"读取 {name} 失败: {e}")
             continue
