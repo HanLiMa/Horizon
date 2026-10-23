@@ -1,0 +1,63 @@
+name: Daily Email Sender
+
+on:
+  schedule:
+    # 每天北京时间早上 8 点运行（UTC 时间 0 点）
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许你手动点击测试
+
+jobs:
+  send_email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 我们的核心逻辑：直接读取刚才生成的 Markdown 文件，发给你的邮箱
+      - name: Send Email with Python
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASSWORD }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+        run: |
+          python -c "
+          import smtplib, os, glob
+          from email.mime.text import MIMEText
+          from email.header import Header
+
+          # 找到今天生成的最新日报（去 data/summaries 找中文的 md 文件）
+          files = glob.glob('data/summaries/*-zh.md')
+          if not files:
+              print('没有找到日报文件！')
+              exit(1)
+          
+          latest_file = sorted(files)[-1]
+          with open(latest_file, 'r', encoding='utf-8') as f:
+              content = f.read()
+
+          # 邮件配置
+          sender = os.environ['EMAIL_USER']
+          password = os.environ['EMAIL_PASS']
+          receiver = os.environ['TO_EMAIL']
+
+          msg = MIMEText(content, 'plain', 'utf-8')
+          msg['Subject'] = Header(f'你的专属AI日报 ({latest_file.split(\"/\")[-1]})', 'utf-8')
+          msg['From'] = sender
+          msg['To'] = receiver
+
+          # 发送邮件 (QQ邮箱)
+          try:
+              smtp = smtplib.SMTP_SSL('smtp.qq.com', 465)
+              smtp.login(sender, password)
+              smtp.sendmail(sender, [receiver], msg.as_string())
+              smtp.quit()
+              print('邮件发送成功！')
+          except Exception as e:
+              print(f'发送失败: {e}')
+              exit(1)
+          "
