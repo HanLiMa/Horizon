@@ -113,12 +113,21 @@ def main():
         print('❌ AI 接口报错:', result)
         return
         
+    # AI 生成的是 Markdown 格式的纯文本
     content = result['choices'][0]['message']['content']
-    print("=== AI 总结生成完毕，准备发送邮件 ===")
+    
+    # 将 Markdown 转换为 HTML，并加上一点简单的 CSS 样式让它更好看
+    html_content = markdown.markdown(content)
+    
+    # 如果想加样式，可以包一层 div：
+    html_content = f"""
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; color: #333; line-height: 1.6;">
+        {html_content}
+    </div>
+    """
 
-    # 4. 发送邮件
-    msg = MIMEText(content, 'plain', 'utf-8')
-    msg['Subject'] = Header('今日简报：FOMM精选 / 网络学术 / 科技茶话会', 'utf-8')
+    msg = MIMEText(html_content, 'html', 'utf-8') # 注意这里改成了 'html'
+    msg['Subject'] = Header('今日精筛：FOMM与网络前沿简报', 'utf-8')
     msg['From'] = sender
     msg['To'] = receiver
 
