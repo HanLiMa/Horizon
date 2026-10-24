@@ -2,6 +2,7 @@ import os
 import requests
 import smtplib
 import feedparser
+import markdown
 from email.mime.text import MIMEText
 from email.header import Header
 
@@ -21,7 +22,8 @@ def main():
     }
     
     news_text = ''
-    keywords_cv = ['pose', 'animation', 'motion', 'avatar', 'fomm', 'reconstruction', 'dance']
+    keywords_cv = ['pose', 'animation', 'motion', 'avatar', 'fomm', 'reconstruction', 
+        'diffusion', 'gaussian', 'nerf', 'implicit', '3d']
     keywords_net = ['routing', 'sdn', 'network', '5g', '6g', 'protocol', 'congestion', 'satellite', 'architecture']
     
     print("=== 开始抓取最新数据 ===")
@@ -86,18 +88,22 @@ def main():
         'Content-Type': 'application/json'
     }
     
-    prompt = f'''你是一名学术研究助理，同时也是一名《计算机网络原理》教师。
-以下是我今天抓取到的论文和科技新闻列表：
-{news_text}
+    prompt = f'''你是一名资深的计算机视觉研究助理，精通 First Order Motion Model (FOMM) 及其演进脉络。，同时也是一名《计算机网络原理》教师。
+    以下是我今天抓取到的论文和科技新闻列表：
+    {news_text}
+    请严格执行以下指令，并直接输出最终的中文邮件正文：
+    【视觉与动画精选】：【任务：FOMM 平行技术路线追踪】
+    请列出 2-3 个与 FOMM 目标功能相同（驱动视频驱动源图像动画）但技术路线完全不同的代表性工作（注意：不要只找修补 FOMM 的论文，要找比如基于扩散模型的、基于 3D 高斯的、或者基于隐式形变的完全不同范式）。
+    对于每一个工作，请输出：
+        1.【论文标题与年份】
+        2. 【技术范式选择】：它采用了什么架构？
+        3. 【为什么没走关键点路线】：它的设计动机是什么（例如是为了解决大姿态导致的局部扭曲，还是为了解决遮挡问题）？
+        4. 【大姿态/遮挡表现】：它在 FOMM 容易失败的场景下表现如何（如果有量化数据请列出）？
 
-请严格执行以下指令，并直接输出最终的中文邮件正文：
-1. 【视觉与动画精选】：从带有 [视觉动画] 标记的内容中，最多挑选 3 篇与姿态迁移、动画生成、FOMM 最相关的论文。为它们分别输出标题、研究方向和核心摘要。
-- 标题（可保留英文）
-   - 研究方向（如：基于扩散模型、大姿态变化等）
-   - 核心摘要（用2-3句话提炼其创新点）
-2. 【网络教学前沿】：从带有 [网络学术] 标记的内容中，挑选 2 篇，用中文概括其研究的网络问题（如路由、拥塞控制等），并设计一个适合本科生讨论的问题。
-3. 【网管茶话会（趣味）】：从带有 [大厂八卦] 标记的内容中，挑选 2 篇最有趣、最贴近真实网络工程（比如断网事故、黑客攻击、大厂奇葩操作）的新闻，用中文讲个大概，并点出它与计算机网络原理（如 DNS、BGP、路由、安全、流媒体）的关联。
-4. 如果某一部分今天没有抓取到内容，就跳过不写。排版要清晰易读，带好段落标题。'''
+【网络教学前沿】：从带有 [网络学术] 标记的内容中，挑选 2 篇，用中文概括其研究的网络问题（如路由、拥塞控制等），并设计一个适合本科生讨论的问题。
+
+【网管茶话会（趣味）】：从带有 [大厂八卦] 标记的内容中，挑选 2 篇最有趣、最贴近真实网络工程（比如断网事故、黑客攻击、大厂奇葩操作）的新闻，用中文讲个大概，并点出它与计算机网络原理（如 DNS、BGP、路由、安全、流媒体）的关联。
+如果某一部分今天没有抓取到内容，就跳过不写。排版要清晰易读，带好段落标题。'''
     
     data = {'model': 'deepseek-chat', 'messages': [{'role': 'user', 'content': prompt}]}
     res = requests.post('https://api.deepseek.com/v1/chat/completions', headers=headers, json=data)
