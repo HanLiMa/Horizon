@@ -39,19 +39,32 @@ def main():
         for entry in feed.entries:
             title = entry.title.lower()
             
-            # 分支1：The Register (不过滤，直接取最新5篇)
+            # 提取时间、链接和摘要，并处理可能为空的情况
+            pub_date = getattr(entry, 'published', '未知日期')
+            pub_date = pub_date[:16] # 截取前16位字符，比如 "Fri, 24 Oct 2026"
+            link = getattr(entry, 'link', '无链接')
+            
+            # 提取摘要并清理多余的 HTML 标签
+            import re
+            summary = getattr(entry, 'summary', '')
+            summary = re.sub(r'<[^>]+>', '', summary).strip()
+            summary = summary[:500] # 截取前300个字符，防止太长
+
+            # 分支1：The Register
             if name == 'The Register':
-                news_text += f'[大厂八卦] {entry.title}\n'
+                news_text += f'[大厂八卦] 日期:{pub_date} | 标题:{entry.title} | 链接:{link}\n摘要:{summary}\n'
                 count += 1
+                
             # 分支2：arXiv 网络论文
             elif name == 'arXiv-NI':
                 if any(kw in title for kw in keywords_net):
-                    news_text += f'[网络学术] {entry.title}\n'
+                    news_text += f'[网络前沿] 日期:{pub_date} | 标题:{entry.title} | 链接:{link}\n摘要:{summary}\n'
                     count += 1
+                    
             # 分支3：arXiv 视觉/图形论文
             else:
                 if any(kw in title for kw in keywords_cv):
-                    news_text += f'[视觉动画] {entry.title}\n'
+                    news_text += f'[视觉动画] 日期:{pub_date} | 标题:{entry.title} | 链接:{link}\n摘要:{summary}\n'
                     count += 1
                     
             # 每个源最多抓 5 篇，防止 token 爆炸
