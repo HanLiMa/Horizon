@@ -1,3 +1,11 @@
+# --- .gitignore 语法备忘录 ---
+# 1. 以 # 开头的是注释，Git 会忽略这一行。
+# 2. dist/  （结尾带斜杠）：仅忽略名为 dist 的文件夹，不忽略同名文件。
+# 3. *.log   （星号通配）：忽略所有以 .log 结尾的文件。
+# 4. /dist/  （开头带斜杠）：仅忽略根目录下的 dist 文件夹（不含子目录里的）。
+# 5. !readme.md （感叹号洗白）：如果你之前忽略了所有 md，可以用 ! 强行让 Git 追踪某个特定文件。
+# 6. 空行会被 Git 忽略，可以用空行来分组，让代码更好看。
+
 # Python
 __pycache__/
 *.py[cod]
@@ -63,3 +71,6 @@ logs/*.log
 todo.txt
 .ruff_cache
 .pytest_cache
+
+#
+my_docs/
