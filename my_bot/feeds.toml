@@ -1,0 +1,176 @@
+# ============================================================
+# 每日简报的信息源配置
+# 只改这个文件，不用动 main.py。
+#
+# 每个 [[feeds]] 是一路源，字段含义：
+#   name      日志里显示的名字（随便起，不参与逻辑）
+#   url       RSS / Atom 地址
+#   tag       打给 AI 的分类标记，只有这三个值有用：
+#             "视觉动画"  -> 提示词【模块一】
+#             "网络前沿"  -> 提示词【模块二】
+#             "大厂八卦"  -> 提示词【模块三】
+#   keywords  标题关键词过滤，命中任意一个才收录；写成 keywords = [] 表示不过滤，全收
+#   max_items 这一路源最多收几条，防止 token 爆炸
+#   enabled   改成 false 就临时停用这一路，不用删配置
+#
+# 提醒：arXiv 的 RSS 目前（2026-10）服务端返回空，跑起来会看到 0 条，
+#       可以先留着，等它恢复；也可以之后换成 export.arxiv.org 的 API。
+# ============================================================
+
+# ---------- 视觉 / 动画（FOMM 方向） ----------
+
+[[feeds]]
+name = "arXiv-CV"
+url = "http://rss.arxiv.org/rss/cs.CV"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = [
+  "pose", "animation", "motion", "avatar", "fomm", "reconstruction",
+  "diffusion", "gaussian", "nerf", "implicit", "image generation",
+  "image animation", "pose transfer", "video generation",
+  # 补的 FOMM 近义词，嫌噪音大可删
+  "talking head", "portrait", "reenact",
+]
+
+[[feeds]]
+name = "arXiv-GR"
+url = "http://rss.arxiv.org/rss/cs.GR"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = [
+  "pose", "animation", "motion", "avatar", "reconstruction",
+  "diffusion", "gaussian", "nerf", "implicit", "deformation",
+  "talking head", "portrait", "reenact",
+]
+
+# SIGGRAPH / SIGGRAPH Asia 正刊，图形学与动画的最高权威期刊
+[[feeds]]
+name = "ACM-TOG"
+url = "https://dl.acm.org/action/showFeed?type=etoc&feed=rss&jc=tog"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = [
+  "avatar", "animation", "face", "hair", "portrait", "motion",
+  "gaussian", "nerf", "deformation", "reconstruction", "video",
+  "talking head", "reenact", "diffusion", "generative",
+]
+
+# CV 最高权威期刊（含大量面孔驱动 / 肖像动画工作），条目自带摘要
+[[feeds]]
+name = "IEEE-TPAMI"
+url = "https://ieeexplore.ieee.org/rss/TOC34.XML"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = [
+  "face", "avatar", "portrait", "animation", "motion", "video",
+  "diffusion", "gaussian", "nerf", "reconstruction", "generative",
+  "talking head", "reenact",
+]
+
+# TVCG：虚拟/增强现实、数字人、计算机动画方向顶刊，与 FOMM 目标最贴近的期刊之一
+[[feeds]]
+name = "IEEE-TVCG"
+url = "https://ieeexplore.ieee.org/rss/TOC2945.XML"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = [
+  "avatar", "face", "portrait", "animation", "motion", "deformation",
+  "gaussian", "nerf", "reconstruction", "generative", "virtual human",
+  "talking head", "reenact",
+]
+
+# 工业界研究博客：日更，能补上顶刊「一期论文连续几天重复」的新鲜度问题
+[[feeds]]
+name = "NVIDIA-Blog"
+url = "https://blogs.nvidia.com/feed/"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = [
+  "avatar", "face", "3d", "animation", "generative", "digital human",
+  "simulation", "omniverse",
+]
+
+# --- 下面两个是备选，我这边网络到不了，没法验证 URL 有效性 ---
+# 想用就把 enabled 改成 true，然后看 Action 日志里是否出现「返回 0 条」。
+
+# Meta 的 Codec Avatars / 数字人一条线，工业界最接近 FOMM 目标功能
+[[feeds]]
+name = "Meta-AI-Blog"
+url = "https://ai.meta.com/blog/rss/"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = ["avatar", "face", "portrait", "animation", "codec", "3d", "video"]
+
+# Hugging Face 每日论文榜（社区投票筛选）。据社区项目 papers-api 的说法，
+# HF 官方没有提供 RSS，这个地址很可能 404，用之前先在日志里确认。
+[[feeds]]
+name = "HF-Daily-Papers"
+url = "https://huggingface.co/papers/feed.xml"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = ["face", "avatar", "portrait", "animation", "motion", "diffusion",
+            "gaussian", "nerf", "reconstruction", "talking head", "reenact"]
+
+# ---------- 网络 ----------
+
+[[feeds]]
+name = "arXiv-NI"
+url = "http://rss.arxiv.org/rss/cs.NI"
+tag = "网络前沿"
+max_items = 5
+enabled = true
+keywords = [
+  "routing", "sdn", "network", "5g", "6g", "protocol",
+  "congestion", "satellite", "architecture", "wifi",
+]
+
+# 最新发布的 RFC 标准原文
+[[feeds]]
+name = "IETF-RFC"
+url = "https://datatracker.ietf.org/feed/rfc/"
+tag = "网络前沿"
+max_items = 5
+enabled = true
+keywords = []
+
+# APNIC 博客：BGP / DNS / 路由事故的一线运维视角，最贴课堂案例
+[[feeds]]
+name = "APNIC-Blog"
+url = "https://blog.apnic.net/feed/"
+tag = "网络前沿"
+max_items = 5
+enabled = true
+keywords = [
+  "bgp", "dns", "routing", "ipv6", "tcp", "tls", "http",
+  "anycast", "cdn", "ddos", "measurement", "outage",
+]
+
+# Cloudflare 博客：协议实测、网络事故复盘
+[[feeds]]
+name = "Cloudflare-Blog"
+url = "https://blog.cloudflare.com/rss/"
+tag = "网络前沿"
+max_items = 5
+enabled = true
+keywords = [
+  "bgp", "dns", "routing", "ipv6", "tcp", "tls", "http",
+  "anycast", "cdn", "ddos", "outage", "network", "quic",
+]
+
+# ---------- 科技新闻 / 八卦 ----------
+
+[[feeds]]
+name = "The Register"
+url = "https://www.theregister.com/headlines.atom"
+tag = "大厂八卦"
+max_items = 5
+enabled = true
+keywords = []

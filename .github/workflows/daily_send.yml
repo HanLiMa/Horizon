@@ -15,7 +15,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          # 必须是 3.11+：main.py 用标准库 tomllib 读 my_bot/feeds.toml，3.10 没有这个模块
+          python-version: '3.11'
 
       - name: Install dependencies
         run: pip install requests feedparser markdown
