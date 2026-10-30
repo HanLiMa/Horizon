@@ -49,6 +49,7 @@ feeds.toml ──> feedparser 抓取每个源
 | 模块一 视觉与动画（FOMM 前沿） | `[视觉动画]` | arXiv-CV/GR、ACM-TOG、IEEE-TPAMI、IEEE-TVCG、NVIDIA-Blog |
 | 模块二 网络教学前沿 | `[网络前沿]` | arXiv-NI、IETF-RFC、APNIC-Blog、Cloudflare-Blog |
 | 模块三 网管茶话会 | `[大厂八卦]` | The Register |
+| 模块四 省着用的视觉研究（算力与能耗视角） | `[视觉动画]` | 同模块一；今日无相关数据时由模型用已有知识补齐，并标注来源 |
 
 ### 2. 增删信息源 → `feeds.toml`
 
@@ -111,4 +112,4 @@ python my_bot/main.py
 
 ## 变更记录
 
-- **2026-10-30**：提示词抽到 `prompt.md`；信息源抽到 `feeds.toml`（新增 TOG / TPAMI / TVCG / NVIDIA / IETF-RFC / APNIC / Cloudflare）；`main.py` 改为配置驱动 + 跨源去重；workflow 的 Python 从 3.10 提到 3.11。
+- **2026-10-30**：`prompt.md` 新增【模块四：省着用的视觉研究】，从算力/显存/能耗角度审视视觉与动画工作，含「一卡可做的动作」和「节能冷思考」；提示词抽到 `prompt.md`；信息源抽到 `feeds.toml`（新增 TOG / TPAMI / TVCG / NVIDIA / IETF-RFC / APNIC / Cloudflare）；`main.py` 改为配置驱动 + 跨源去重；workflow 的 Python 从 3.10 提到 3.11。
