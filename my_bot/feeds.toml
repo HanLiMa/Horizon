@@ -21,7 +21,7 @@
 
 [[feeds]]
 name = "arXiv-CV"
-url = "http://rss.arxiv.org/rss/cs.CV"
+url = "https://rss.arxiv.org/rss/cs.CV"
 tag = "视觉动画"
 max_items = 5
 enabled = true
@@ -33,9 +33,26 @@ keywords = [
   "talking head", "portrait", "reenact",
 ]
 
+# arXiv 官方 API（RSS 停摆时是唯一能拿到当天新论文的通道）
+# 查询写在 URL 里，服务端按「分类 + 摘要关键词」筛完再返回，所以 keywords 留空。
+# 注意：URL 里不能有空格，空格用 + 表示，引号写成 %22，否则 feedparser 会抛 InvalidURL。
+[[feeds]]
+name = "arXiv-API-CV"
+url = "https://export.arxiv.org/api/query?search_query=cat:cs.CV+AND+(abs:avatar+OR+abs:%22talking+head%22+OR+abs:portrait+OR+abs:reenactment+OR+abs:%22face+animation%22+OR+abs:%22pose+transfer%22)&sortBy=submittedDate&sortOrder=descending&max_results=10"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = []
+
+# ---- 下面这段是上面 URL 里的查询式，方便你改 ----
+#   cat:cs.CV                                  只在这个分类里找
+#   AND ( abs:avatar OR abs:%22talking+head%22 ... )  摘要命中任一即可
+#   sortBy=submittedDate&sortOrder=descending  最新提交优先
+#   max_results=10                             多取几条，代码再按 max_items 截断
+
 [[feeds]]
 name = "arXiv-GR"
-url = "http://rss.arxiv.org/rss/cs.GR"
+url = "https://rss.arxiv.org/rss/cs.GR"
 tag = "视觉动画"
 max_items = 5
 enabled = true
@@ -44,6 +61,15 @@ keywords = [
   "diffusion", "gaussian", "nerf", "implicit", "deformation",
   "talking head", "portrait", "reenact",
 ]
+
+# 同上的 API 版本，检索式换到图形学分类
+[[feeds]]
+name = "arXiv-API-GR"
+url = "https://export.arxiv.org/api/query?search_query=cat:cs.GR+AND+(abs:avatar+OR+abs:animation+OR+abs:deformation+OR+abs:%22talking+head%22+OR+abs:portrait)&sortBy=submittedDate&sortOrder=descending&max_results=10"
+tag = "视觉动画"
+max_items = 5
+enabled = true
+keywords = []
 
 # SIGGRAPH / SIGGRAPH Asia 正刊，图形学与动画的最高权威期刊
 [[feeds]]
@@ -99,10 +125,11 @@ keywords = [
 # --- 下面两个是备选，我这边网络到不了，没法验证 URL 有效性 ---
 # 想用就把 enabled 改成 true，然后看 Action 日志里是否出现「返回 0 条」。
 
-# Meta 的 Codec Avatars / 数字人一条线，工业界最接近 FOMM 目标功能
+# Meta 工程博客（AI 基础设施与研究方向）。
+# 注：原地址 https://ai.meta.com/blog/rss/ 实测 404，已换成 engineering.fb.com。
 [[feeds]]
-name = "Meta-AI-Blog"
-url = "https://ai.meta.com/blog/rss/"
+name = "Meta-Engineering-Blog"
+url = "https://engineering.fb.com/feed/"
 tag = "视觉动画"
 max_items = 5
 enabled = true
@@ -123,14 +150,30 @@ keywords = ["face", "avatar", "portrait", "animation", "motion", "diffusion",
 
 [[feeds]]
 name = "arXiv-NI"
-url = "http://rss.arxiv.org/rss/cs.NI"
+url = "https://rss.arxiv.org/rss/cs.NI"
 tag = "网络前沿"
 max_items = 5
 enabled = true
 keywords = [
+  # 网络基础
   "routing", "sdn", "network", "5g", "6g", "protocol",
   "congestion", "satellite", "architecture", "wifi",
+  # 流媒体 / 实时音视频传输（2026-11 扩充）
+  "webrtc", "rtc", "rtp", "srtp", "srt", "rtmp", "hls", "dash", "cmaf",
+  "moq", "media over quic", "quic", "http/3", "streaming", "live streaming",
+  "low-latency", "low latency", "real-time", "adaptive bitrate", "jitter",
+  "congestion control", "bbr", "l4s", "multicast", "qoe", "codec",
+  "av1", "hevc", "vvc", "video quality", "sub-second",
 ]
+
+# 同上的 API 版本：分类 cs.NI + 摘要包含流媒体/路由等词
+[[feeds]]
+name = "arXiv-API-NI"
+url = "https://export.arxiv.org/api/query?search_query=cat:cs.NI+AND+(abs:webrtc+OR+abs:streaming+OR+abs:%22congestion+control%22+OR+abs:%22low-latency%22+OR+abs:multicast+OR+abs:routing)&sortBy=submittedDate&sortOrder=descending&max_results=10"
+tag = "网络前沿"
+max_items = 5
+enabled = true
+keywords = []
 
 # 最新发布的 RFC 标准原文
 [[feeds]]
@@ -149,8 +192,14 @@ tag = "网络前沿"
 max_items = 5
 enabled = true
 keywords = [
+  # 网络基础与运维
   "bgp", "dns", "routing", "ipv6", "tcp", "tls", "http",
   "anycast", "cdn", "ddos", "measurement", "outage",
+  # 流媒体 / 实时音视频传输（2026-11 扩充）
+  "webrtc", "rtc", "rtp", "srt", "rtmp", "hls", "dash", "cmaf",
+  "moq", "media over quic", "quic", "http/3", "streaming", "live streaming",
+  "low-latency", "low latency", "real-time", "adaptive bitrate", "jitter",
+  "multicast", "qoe", "codec", "av1", "video quality",
 ]
 
 # Cloudflare 博客：协议实测、网络事故复盘
@@ -161,9 +210,45 @@ tag = "网络前沿"
 max_items = 5
 enabled = true
 keywords = [
+  # 网络基础与事故
   "bgp", "dns", "routing", "ipv6", "tcp", "tls", "http",
   "anycast", "cdn", "ddos", "outage", "network", "quic",
+  # 流媒体 / 实时音视频传输（2026-11 扩充）
+  "webrtc", "rtc", "rtp", "srt", "rtmp", "hls", "dash", "cmaf",
+  "moq", "media over quic", "http/3", "streaming", "live streaming",
+  "low-latency", "low latency", "real-time", "adaptive bitrate", "jitter",
+  "multicast", "qoe", "codec", "av1", "video quality",
 ]
+
+# ---------- 流媒体 / 实时音视频（2026-11 新增） ----------
+
+# cs.MM 多媒体分类，流媒体论文的主产地（SRT/QUIC 传输、抗丢包编码、QoE 等）
+[[feeds]]
+name = "arXiv-API-MM"
+url = "https://export.arxiv.org/api/query?search_query=cat:cs.MM+AND+(abs:streaming+OR+abs:webrtc+OR+abs:%22low-latency%22+OR+abs:codec+OR+abs:%22video+quality%22+OR+abs:qoe)&sortBy=submittedDate&sortOrder=descending&max_results=10"
+tag = "网络前沿"
+max_items = 5
+enabled = true
+keywords = []
+
+# WebRTC 行业分析，作者 Tsahi Levent-Levi，这个圈子最常被引用的博客。
+# 整个站都是流媒体主题，所以不过滤（keywords = []），靠 max_items 控量。
+[[feeds]]
+name = "BlogGeek-WebRTC"
+url = "https://bloggeek.me/feed/"
+tag = "网络前沿"
+max_items = 3
+enabled = true
+keywords = []
+
+# WebRTC Hacks：编解码、延迟、拥塞控制的技术拆解，偏工程实测
+[[feeds]]
+name = "WebRTC-Hacks"
+url = "https://webrtchacks.com/feed/"
+tag = "网络前沿"
+max_items = 3
+enabled = true
+keywords = []
 
 # ---------- 科技新闻 / 八卦 ----------
 

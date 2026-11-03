@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import time
 
 try:
     import tomllib  # Python 3.11+ 标准库
@@ -22,6 +23,13 @@ NEWS_PLACEHOLDER = '{{news_text}}'
 # 信息源配置：增删信息源、改关键词只改这个文件
 FEEDS_FILE = Path(__file__).with_name('feeds.toml')
 
+# arXiv 的 API 会限流（官方要求请求间隔 >= 3 秒），这里做退避重试
+ARXIV_HOST = 'export.arxiv.org'
+ARXIV_USER_AGENT = 'my_bot/1.0 (daily digest; python-feedparser)'
+RETRY_STATUS = {429, 500, 502, 503, 504}
+MAX_ATTEMPTS = 3
+RETRY_DELAY = 3  # 秒
+
 
 def load_feeds():
     """读取 feeds.toml，返回启用的信息源列表（enabled = false 的自动跳过）。"""
@@ -36,6 +44,26 @@ def load_feeds():
         raise ValueError('feeds.toml 里没有任何 enabled = true 的信息源')
     print(f"已加载 {len(feeds)} 个信息源。")
     return feeds
+
+
+def fetch_feed(url):
+    """抓取并解析一路 feed；遇到限流或 5xx 时退避重试。
+
+    arXiv 限流时返回的是 14 字节纯文本 "Rate exceeded."，不是 XML，
+    feedparser 不会抛异常，只会安静地给 0 条 entry，所以必须看 feed.status。
+    """
+    feed = None
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        kwargs = {'agent': ARXIV_USER_AGENT} if ARXIV_HOST in url else {}
+        feed = feedparser.parse(url, **kwargs)
+
+        status = getattr(feed, 'status', None)
+        if status in RETRY_STATUS and attempt < MAX_ATTEMPTS:
+            print(f"   ⏳ 被限流（HTTP {status}），{RETRY_DELAY} 秒后重试（{attempt}/{MAX_ATTEMPTS - 1}）")
+            time.sleep(RETRY_DELAY)
+            continue
+        break
+    return feed
 
 
 def main():
@@ -62,14 +90,24 @@ def main():
 
         print(f"正在读取: {name} ...")
         try:
-            feed = feedparser.parse(feed_cfg['url'])
+            feed = fetch_feed(feed_cfg['url'])
         except Exception as e:
             print(f"❌ 读取 {name} 失败: {e}")
             continue
 
-        print(f"--> 从 {name} 成功解析到 {len(feed.entries)} 条原始数据。")
+        status = getattr(feed, 'status', None)
+        print(f"--> 从 {name} 解析到 {len(feed.entries)} 条原始数据（HTTP {status}）。")
+
         if not feed.entries:
-            print(f"⚠️  {name} 返回 0 条：URL 可能失效，或被反爬拦截。")
+            # 分开报错：限流 / 404 / 反爬 的处置方式完全不同
+            if status in RETRY_STATUS:
+                print(f"⚠️  {name} 重试后仍被限流（HTTP {status}），本次跳过。")
+            elif status == 404:
+                print(f"⚠️  {name} 返回 404，地址可能已失效。")
+            elif status is None:
+                print(f"⚠️  {name} 连不上，检查网络或 URL。")
+            else:
+                print(f"⚠️  {name} 返回 0 条：可能是反爬页面（非 XML）或 feed 本身为空。")
             continue
 
         count = 0
